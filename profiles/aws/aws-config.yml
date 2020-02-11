@@ -1,0 +1,19 @@
+parents:
+  - config
+
+config:
+  aws_redis_subnets:
+    - redis-a
+    - redis-b
+    - redis-c
+
+  aws_redis_machine: t2.small
+  aws_redis_tenancy: default
+  aws_redis_monitoring: false
+
+  aws_redis_ebs_type: gp2
+  aws_redis_ebs_size: 20
+  aws_redis_ebs_iops: null
+  aws_redis_ebs_optimized: false
+  aws_redis_ebs_encrypted: false
+  aws_redis_data_device: /dev/xvdb

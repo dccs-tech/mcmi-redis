@@ -1,0 +1,10 @@
+
+_ansible: &ansible
+  provider: ansible
+  roles: redis-admin
+  directory: ansible
+
+
+redis:
+  <<: *ansible
+  playbooks: redis.yml

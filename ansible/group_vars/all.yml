@@ -1,0 +1,14 @@
+---
+# Redis Cluster variables
+
+# OS system limits
+limits_conf_d_files:
+  000-redis-server.conf:
+    - domain: redis
+      type: soft
+      item: nofile
+      value: 65535
+    - domain: redis
+      type: hard
+      item: nofile
+      value: 65535

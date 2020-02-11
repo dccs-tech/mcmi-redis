@@ -1,0 +1,12 @@
+parents:
+  - aws-config
+
+profile:
+  redis-network:
+    module: cluster
+    profile: aws-network
+    operations: run
+
+  redis-cluster:
+    requires: redis-network
+    profile: aws-cluster

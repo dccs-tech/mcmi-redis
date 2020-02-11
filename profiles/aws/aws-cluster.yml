@@ -1,0 +1,101 @@
+parents:
+  - module: cluster
+    profile: aws-config
+
+  - aws-config
+
+group:
+  "@redis_group":
+
+subnet:
+  redis-a:
+    when_in: "@aws_redis_subnets"
+    network: "@aws_networks"
+    cidr_prefix: "@redis_subnet_cidr_prefix"
+    zone_suffix: a
+    use_public_ip: "@redis_subnet_public_ip"
+    nat_subnet: nat-a
+    groups: "@redis_group"
+
+  redis-b:
+    when_in: "@aws_redis_subnets"
+    network: "@aws_networks"
+    cidr_prefix: "@redis_subnet_cidr_prefix"
+    zone_suffix: b
+    use_public_ip: "@redis_subnet_public_ip"
+    nat_subnet: nat-b
+    groups: "@redis_group"
+
+  redis-c:
+    when_in: "@aws_redis_subnets"
+    network: "@aws_networks"
+    cidr_prefix: "@redis_subnet_cidr_prefix"
+    zone_suffix: c
+    use_public_ip: "@redis_subnet_public_ip"
+    nat_subnet: nat-c
+    groups: "@redis_group"
+
+firewall:
+  redis-db:
+    network: "@aws_networks"
+    groups: "@redis_group"
+    rules:
+      in:
+        mode: ingress
+        protocol: tcp
+        from_port: "@redis_db_port"
+        to_port: "@redis_db_port"
+        cidrs: "@network_cidr_base"
+  redis-sentinel:
+    network: "@aws_networks"
+    groups: "@redis_group"
+    rules:
+      in:
+        mode: ingress
+        protocol: tcp
+        from_port: "@redis_sentinel_port"
+        to_port: "@redis_sentinel_port"
+        cidrs: "@redis_sentinel_cidr_base"
+
+server:
+  redis:
+    count: 1
+    provider: ec2
+    network: "@aws_networks"
+    subnet: "@aws_redis_subnets"
+    image: "@aws_ubuntu_image[<network>]"
+    ssh_port: "@ssh_port"
+    user: "@aws_ubuntu_user"
+    machine: "@aws_redis_machine"
+    tenancy: "@aws_redis_tenancy"
+    monitoring: "@aws_redis_monitoring"
+    ebs_optimized: "@aws_redis_ebs_optimized"
+    groups: "@redis_group"
+    volumes:
+      "@redis_data_dir":
+        provider: aws_ebs
+        type: ext4
+        owner: "@redis_user"
+        group: "@redis_group"
+        mode: "0770"
+        location: "@aws_redis_data_device"
+        ebs_type: "@aws_redis_ebs_type"
+        ebs_size: "@aws_redis_ebs_size"
+        ebs_iops: "@aws_redis_ebs_iops"
+        ebs_encrypted: "@aws_redis_ebs_encrypted"
+    firewalls:
+      - internet
+      - ssh-external
+      - redis-db
+      - redis-sentinel
+
+run:
+  redis-credentials:
+    command: server rotate
+    server_search: groups.name=@redis_group
+
+  redis-user-environment:
+    requires: redis-credentials
+    module: cluster
+    task: user-environment
+    servers: groups.name=@redis_group
