@@ -55,7 +55,7 @@ firewall:
         protocol: tcp
         from_port: "@redis_sentinel_port"
         to_port: "@redis_sentinel_port"
-        cidrs: "@redis_sentinel_cidr_base"
+        cidrs: "@network_cidr_base"
 
 server:
   redis:
