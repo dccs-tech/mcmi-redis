@@ -14,7 +14,7 @@
   roles:
     - { role: davidwittman.redis }
 
-- hosts: "{{ groups['redis-sentinel'][1::2] }}"
+- hosts: "{{ groups['redis-sentinel'][0::2] }}"
   vars:
     redis_sentinel: true
     redis_sentinel_monitors:
@@ -24,7 +24,7 @@
   roles:
     - { role: davidwittman.redis }
 
-- hosts: "{{ groups['redis-sentinel'][2::2] }}"
+- hosts: "{{ groups['redis-sentinel'][1::2] }}"
   vars:
     redis_sentinel: true
     redis_sentinel_monitors:
