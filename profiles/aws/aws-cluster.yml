@@ -6,6 +6,7 @@ parents:
 
 group:
   "@redis_group":
+  "@redis_sentinel_group":
 
 subnet:
   redis-a:
@@ -36,7 +37,7 @@ subnet:
     groups: "@redis_group"
 
 firewall:
-  redis-db:
+  redis:
     network: "@aws_networks"
     groups: "@redis_group"
     rules:
@@ -46,6 +47,7 @@ firewall:
         from_port: "@redis_db_port"
         to_port: "@redis_db_port"
         cidrs: "@network_cidr_base"
+
   redis-sentinel:
     network: "@aws_networks"
     groups: "@redis_group"
@@ -86,16 +88,45 @@ server:
     firewalls:
       - internet
       - ssh-external
-      - redis-db
+      - redis
+
+  redis-sentinel:
+    count: 1
+    provider: ec2
+    network: "@aws_networks"
+    subnet: "@aws_redis_subnets"
+    image: "@aws_ubuntu_image[<network>]"
+    ssh_port: "@ssh_port"
+    user: "@aws_ubuntu_user"
+    machine: "@aws_redis_sentinel_machine"
+    tenancy: "@aws_redis_sentinel_tenancy"
+    monitoring: "@aws_redis_sentinel_monitoring"
+    ebs_optimized: "@aws_redis_sentinel_ebs_optimized"
+    groups: "@redis_sentinel_group"
+    firewalls:
+      - internet
+      - ssh-external
       - redis-sentinel
 
 run:
   redis-credentials:
     command: server rotate
-    server_search: groups.name=@redis_group
+    server_search: groups.name.in=@redis_group,@redis_sentinel_group
 
   redis-user-environment:
     requires: redis-credentials
     module: cluster
     task: user-environment
-    servers: groups.name=@redis_group
+    servers: groups.name.in=@redis_group,@redis_sentinel_group
+
+  redis-cluster:
+    requires: redis-credentials
+    task: redis
+    redis_port: "@redis_db_port"
+    redis_sentinel_port: "@redis_sentinel_port"
+    redis_user: "@redis_user"
+    redis_group: "@redis_user"
+    redis_password: "@redis_password"
+    redis_sentinel_password: "@redis_sentinel_password"
+    redis_dir: "@redis_data_dir"
+    servers: groups.name.in=@redis_group,@redis_sentinel_group
