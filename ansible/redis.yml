@@ -1,3 +1,35 @@
-- hosts: all
+- hosts: redis[0]
   roles:
-    - { role: oefenweb.limits }
+    - { role: davidwittman.redis }
+
+- hosts: "{{ groups['redis'][1::2] }}"
+  vars:
+    redis_slaveof: "{{ hostvars[groups['redis'][0]].ansible_host }} {{ redis_port | default(6379) }}"
+  roles:
+    - { role: davidwittman.redis }
+
+- hosts: "{{ groups['redis'][2::2] }}"
+  vars:
+    redis_slaveof: "{{ hostvars[groups['redis'][0]].ansible_host }} {{ redis_port | default(6379) }}"
+  roles:
+    - { role: davidwittman.redis }
+
+- hosts: "{{ groups['redis-sentinel'][1::2] }}"
+  vars:
+    redis_sentinel: true
+    redis_sentinel_monitors:
+      - name: master1
+        host: "{{ hostvars[groups['redis'][0]].ansible_host }}"
+        port: "{{ redis_sentinel_port | default(26379) }}"
+  roles:
+    - { role: davidwittman.redis }
+
+- hosts: "{{ groups['redis-sentinel'][2::2] }}"
+  vars:
+    redis_sentinel: true
+    redis_sentinel_monitors:
+      - name: master1
+        host: "{{ hostvars[groups['redis'][0]].ansible_host }}"
+        port: "{{ redis_sentinel_port | default(26379) }}"
+  roles:
+    - { role: davidwittman.redis }
