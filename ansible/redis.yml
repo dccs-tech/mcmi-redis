@@ -14,22 +14,24 @@
   roles:
     - { role: davidwittman.redis }
 
-- hosts: "{{ groups['redis-sentinel'][0::2] }}"
+- hosts: "{{ groups['redis'][0::2] }}"
   vars:
     redis_sentinel: true
     redis_sentinel_monitors:
-      - name: master1
+      - name: mcmi
         host: "{{ hostvars[groups['redis'][0]].ansible_host }}"
-        port: "{{ redis_sentinel_port | default(26379) }}"
+        port: "{{ redis_port | default(6379) }}"
+        auth_pass: "{{ redis_password }}"
   roles:
     - { role: davidwittman.redis }
 
-- hosts: "{{ groups['redis-sentinel'][1::2] }}"
+- hosts: "{{ groups['redis'][1::2] }}"
   vars:
     redis_sentinel: true
     redis_sentinel_monitors:
-      - name: master1
+      - name: mcmi
         host: "{{ hostvars[groups['redis'][0]].ansible_host }}"
-        port: "{{ redis_sentinel_port | default(26379) }}"
+        port: "{{ redis_port | default(6379) }}"
+        auth_pass: "{{ redis_password }}"
   roles:
     - { role: davidwittman.redis }
