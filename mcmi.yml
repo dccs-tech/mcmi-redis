@@ -1,3 +1,5 @@
+scripts: scripts/install.sh
+
 tasks: tasks
 profiles:
   - profiles
