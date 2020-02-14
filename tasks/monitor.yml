@@ -1,0 +1,18 @@
+
+server:
+  provider: remote_command
+  command: redis-cli -p @port -a @password @command
+  roles: redis-admin
+  options:
+    port: 6379
+    password: "$token-redis_password-30"
+    command: "info"
+
+sentinel:
+  provider: remote_command
+  command: redis-cli -p @port -a @password @command
+  roles: redis-admin
+  options:
+    port: 26379
+    password: "$token-redis_sentinel_password-30"
+    command: "info"
