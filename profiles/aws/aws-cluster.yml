@@ -99,7 +99,6 @@ server:
         ebs_encrypted: "@aws_redis_ebs_encrypted"
     firewalls:
       - internet
-      - all
       - ssh-external
       - redis
 
