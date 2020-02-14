@@ -121,7 +121,6 @@ run:
     redis_user: "@redis_user"
     redis_group: "@redis_user"
     redis_password: "@redis_password"
-    redis_sentinel_password: "@redis_sentinel_password"
     redis_dir: "@redis_data_dir/@redis_db_port"
     redis_sentinel_dir: "@redis_data_dir/sentinel_@redis_sentinel_port"
     servers: groups.name=@redis_group

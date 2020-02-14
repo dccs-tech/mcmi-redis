@@ -10,9 +10,8 @@ server:
 
 sentinel:
   provider: remote_command
-  command: redis-cli -p @port -a @password @command
+  command: redis-cli -p @port
   roles: redis-admin
   options:
     port: 26379
-    password: "$token-redis_sentinel_password-30"
     command: "info"
