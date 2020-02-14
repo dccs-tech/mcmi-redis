@@ -4,7 +4,6 @@ config:
 
   redis_user: redis
   redis_group: redis
-  redis_sentinel_group: redis-sentinel
 
   redis_db_port: 6379
   redis_sentinel_port: 26379

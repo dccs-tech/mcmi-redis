@@ -7,6 +7,10 @@ config:
     - redis-b
     - redis-c
 
+  aws_redis_lb_health_check_interval: 30
+  aws_redis_lb_healthy_threshold: 3
+  aws_redis_lb_unhealthy_threshold: 3
+
   aws_redis_machine: t2.small
   aws_redis_tenancy: default
   aws_redis_monitoring: false
@@ -17,8 +21,3 @@ config:
   aws_redis_ebs_optimized: false
   aws_redis_ebs_encrypted: false
   aws_redis_data_device: /dev/xvdb
-
-  aws_redis_sentinel_machine: t2.small
-  aws_redis_sentinel_tenancy: default
-  aws_redis_sentinel_monitoring: false
-  aws_redis_sentinel_ebs_optimized: false

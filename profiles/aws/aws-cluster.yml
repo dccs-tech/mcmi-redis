@@ -6,7 +6,6 @@ parents:
 
 group:
   "@redis_group":
-  "@redis_sentinel_group":
 
 subnet:
   redis-a:
@@ -41,28 +40,39 @@ firewall:
     network: "@aws_networks"
     groups: "@redis_group"
     rules:
-      in:
+      server:
         mode: ingress
         protocol: tcp
         from_port: "@redis_db_port"
         to_port: "@redis_db_port"
         cidrs: "@network_cidr_base"
-
-  redis-sentinel:
-    network: "@aws_networks"
-    groups: "@redis_group"
-    rules:
-      in:
+      sentinel:
         mode: ingress
         protocol: tcp
         from_port: "@redis_sentinel_port"
         to_port: "@redis_sentinel_port"
         cidrs: "@network_cidr_base"
 
+load_balancer:
+  redis-sentinel:
+    provider: aws_network
+    network: "@aws_networks"
+    subnets: "@aws_redis_subnets"
+    groups: "@redis_group"
+    internal: true
+    listeners:
+      tcp:
+        port: "@redis_sentinel_port"
+        target_port: "@redis_sentinel_port"
+        target_protocol: tcp
+        health_check_interval: "@aws_redis_lb_health_check_interval"
+        healthy_threshold: "@aws_redis_lb_healthy_threshold"
+        unhealthy_threshold: "@aws_redis_lb_unhealthy_threshold"
+
 server:
   redis:
     count: 1
-    provider: ec2
+    provider: ec2_lb
     network: "@aws_networks"
     subnet: "@aws_redis_subnets"
     image: "@aws_ubuntu_image[<network>]"
@@ -72,6 +82,8 @@ server:
     tenancy: "@aws_redis_tenancy"
     monitoring: "@aws_redis_monitoring"
     ebs_optimized: "@aws_redis_ebs_optimized"
+    load_balancer: redis-sentinel
+    load_balancer_listener: tcp
     groups: "@redis_group"
     volumes:
       "@redis_data_dir":
@@ -87,37 +99,20 @@ server:
         ebs_encrypted: "@aws_redis_ebs_encrypted"
     firewalls:
       - internet
+      - all
       - ssh-external
       - redis
-
-  redis-sentinel:
-    count: 1
-    provider: ec2
-    network: "@aws_networks"
-    subnet: "@aws_redis_subnets"
-    image: "@aws_ubuntu_image[<network>]"
-    ssh_port: "@ssh_port"
-    user: "@aws_ubuntu_user"
-    machine: "@aws_redis_sentinel_machine"
-    tenancy: "@aws_redis_sentinel_tenancy"
-    monitoring: "@aws_redis_sentinel_monitoring"
-    ebs_optimized: "@aws_redis_sentinel_ebs_optimized"
-    groups: "@redis_sentinel_group"
-    firewalls:
-      - internet
-      - ssh-external
-      - redis-sentinel
 
 run:
   redis-credentials:
     command: server rotate
-    server_search: groups.name.in=@redis_group,@redis_sentinel_group
+    server_search: groups.name=@redis_group
 
   redis-user-environment:
     requires: redis-credentials
     module: cluster
     task: user-environment
-    servers: groups.name.in=@redis_group,@redis_sentinel_group
+    servers: groups.name=@redis_group
 
   redis-cluster:
     requires: redis-credentials
@@ -128,5 +123,6 @@ run:
     redis_group: "@redis_user"
     redis_password: "@redis_password"
     redis_sentinel_password: "@redis_sentinel_password"
-    redis_dir: "@redis_data_dir"
-    servers: groups.name.in=@redis_group,@redis_sentinel_group
+    redis_dir: "@redis_data_dir/@redis_db_port"
+    redis_sentinel_dir: "@redis_data_dir/sentinel_@redis_sentinel_port"
+    servers: groups.name=@redis_group
