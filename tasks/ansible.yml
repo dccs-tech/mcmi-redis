@@ -3,6 +3,8 @@ _ansible: &ansible
   provider: ansible
   roles: redis-admin
   directory: ansible
+  servers:
+    - name.startswith=redis
 
 
 redis:
