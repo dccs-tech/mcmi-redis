@@ -1,8 +1,8 @@
 parents:
   - module: cluster
-    profile: aws-config
+    profile: aws/config
 
-  - aws-config
+  - aws/config
 
 group:
   "@redis_group":
