@@ -1,0 +1,2 @@
+roles:
+    redis-admin: Redis administrator (full privileges over Redis system)
