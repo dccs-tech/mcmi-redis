@@ -1,0 +1,8 @@
+roles:
+  redis-admin: Redis administrator (full privileges over Redis system)
+
+modules:
+  cluster:
+    provider: git
+    remote: https://github.com/dccs-tech/zimagi-cluster.git
+    reference: master

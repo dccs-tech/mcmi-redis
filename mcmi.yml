@@ -1,8 +1,0 @@
-roles:
-  redis-admin: Redis administrator (full privileges over Redis Cluster system)
-
-modules:
-  cluster:
-    provider: git
-    remote: https://github.com/dccs-tech/mcmi-cluster.git
-    reference: master
