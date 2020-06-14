@@ -7,6 +7,15 @@ profile:
     profile: aws/network
     operations: run
 
-  redis-cluster:
+  redis-nat:
     requires: redis-network
+    when_not: "@redis_subnet_public_ip"
+    module: cluster
+    profile: aws/nat
+    operations: run
+
+  redis-cluster:
+    requires:
+      - redis-network
+      - redis-nat
     profile: aws/cluster
