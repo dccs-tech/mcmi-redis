@@ -4,8 +4,8 @@ parents:
 
   - aws/config
 
-group:
-  "@redis_group":
+config:
+  ssh_firewall: "?> @redis_subnet_public_ip ? 'ssh-external' | 'ssh-internal'"
 
 subnet:
   redis-a:
@@ -14,7 +14,7 @@ subnet:
     cidr_prefix: "@redis_subnet_cidr_prefix"
     zone_suffix: a
     use_public_ip: "@redis_subnet_public_ip"
-    nat_subnet: nat-a
+    nat_subnet: "?> not @redis_subnet_public_ip ? 'nat-a' | None"
     groups: "@redis_group"
 
   redis-b:
@@ -23,7 +23,7 @@ subnet:
     cidr_prefix: "@redis_subnet_cidr_prefix"
     zone_suffix: b
     use_public_ip: "@redis_subnet_public_ip"
-    nat_subnet: nat-b
+    nat_subnet: "?> not @redis_subnet_public_ip ? 'nat-b' | None"
     groups: "@redis_group"
 
   redis-c:
@@ -32,7 +32,7 @@ subnet:
     cidr_prefix: "@redis_subnet_cidr_prefix"
     zone_suffix: c
     use_public_ip: "@redis_subnet_public_ip"
-    nat_subnet: nat-c
+    nat_subnet: "?> not @redis_subnet_public_ip ? 'nat-c' | None"
     groups: "@redis_group"
 
 firewall:
@@ -83,7 +83,8 @@ server:
     monitoring: "@aws_redis_monitoring"
     ebs_optimized: "@aws_redis_ebs_optimized"
     load_balancer: redis-sentinel
-    load_balancer_listener: tcp
+    load_balancer_listeners:
+      - tcp
     groups: "@redis_group"
     volumes:
       "@redis_data_dir":
@@ -99,7 +100,7 @@ server:
         ebs_encrypted: "@aws_redis_ebs_encrypted"
     firewalls:
       - internet
-      - ssh-external
+      - "@ssh_firewall"
       - redis
 
 run:
