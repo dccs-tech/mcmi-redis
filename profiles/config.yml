@@ -11,3 +11,6 @@ config:
   redis_password: "%%redis_password:30"
 
   redis_data_dir: /var/lib/redis
+
+group:
+  "@redis_group":
