@@ -1,11 +1,6 @@
 # VSCode files
 *.code-workspace
 
-# Python files
-__pycache__
-
-# Ansible files
-*.retry
-
-# Extra files
-*.log
+# System files
+.*
+!.gitignore
