@@ -1,7 +1,5 @@
 name: redis
 
 modules:
-  cluster:
-    provider: git
-    remote: https://github.com/dccs-tech/zimagi-cluster.git
+  - remote: https://github.com/dccs-tech/zimagi-cluster.git
     reference: master
