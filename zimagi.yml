@@ -1,4 +1,5 @@
 name: redis
+
 modules:
   cluster:
     provider: git
