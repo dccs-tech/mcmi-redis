@@ -1,127 +1,127 @@
 parents:
-  - module: cluster
-    profile: aws/config
+    - module: cluster
+      profile: aws/config
 
-  - aws/config
+    - aws/config
 
 config:
-  ssh_firewall: "?> @redis_subnet_public_ip ? 'ssh-external' | 'ssh-internal'"
+    ssh_firewall: "?> @redis_subnet_public_ip ? 'ssh-external' | 'ssh-internal'"
 
 subnet:
-  redis-a:
-    when_in: "@aws_redis_subnets"
-    network: "@aws_networks"
-    cidr_prefix: "@redis_subnet_cidr_prefix"
-    zone_suffix: a
-    use_public_ip: "@redis_subnet_public_ip"
-    nat_subnet: "?> not @redis_subnet_public_ip ? 'nat-a' | None"
-    groups: "@redis_group"
+    redis-a:
+        when_in: "@aws_redis_subnets"
+        network: "@aws_networks"
+        cidr_prefix: "@redis_subnet_cidr_prefix"
+        zone_suffix: a
+        use_public_ip: "@redis_subnet_public_ip"
+        nat_subnet: "?> not @redis_subnet_public_ip ? 'nat-a' | None"
+        groups: "@redis_group"
 
-  redis-b:
-    when_in: "@aws_redis_subnets"
-    network: "@aws_networks"
-    cidr_prefix: "@redis_subnet_cidr_prefix"
-    zone_suffix: b
-    use_public_ip: "@redis_subnet_public_ip"
-    nat_subnet: "?> not @redis_subnet_public_ip ? 'nat-b' | None"
-    groups: "@redis_group"
+    redis-b:
+        when_in: "@aws_redis_subnets"
+        network: "@aws_networks"
+        cidr_prefix: "@redis_subnet_cidr_prefix"
+        zone_suffix: b
+        use_public_ip: "@redis_subnet_public_ip"
+        nat_subnet: "?> not @redis_subnet_public_ip ? 'nat-b' | None"
+        groups: "@redis_group"
 
-  redis-c:
-    when_in: "@aws_redis_subnets"
-    network: "@aws_networks"
-    cidr_prefix: "@redis_subnet_cidr_prefix"
-    zone_suffix: c
-    use_public_ip: "@redis_subnet_public_ip"
-    nat_subnet: "?> not @redis_subnet_public_ip ? 'nat-c' | None"
-    groups: "@redis_group"
+    redis-c:
+        when_in: "@aws_redis_subnets"
+        network: "@aws_networks"
+        cidr_prefix: "@redis_subnet_cidr_prefix"
+        zone_suffix: c
+        use_public_ip: "@redis_subnet_public_ip"
+        nat_subnet: "?> not @redis_subnet_public_ip ? 'nat-c' | None"
+        groups: "@redis_group"
 
 firewall:
-  redis:
-    network: "@aws_networks"
-    groups: "@redis_group"
-    rules:
-      server:
-        mode: ingress
-        protocol: tcp
-        from_port: "@redis_db_port"
-        to_port: "@redis_db_port"
-        cidrs: "@network_cidr_base"
-      sentinel:
-        mode: ingress
-        protocol: tcp
-        from_port: "@redis_sentinel_port"
-        to_port: "@redis_sentinel_port"
-        cidrs: "@network_cidr_base"
+    redis:
+        network: "@aws_networks"
+        groups: "@redis_group"
+        rules:
+            server:
+                mode: ingress
+                protocol: tcp
+                from_port: "@redis_db_port"
+                to_port: "@redis_db_port"
+                cidrs: "@network_cidr_base"
+            sentinel:
+                mode: ingress
+                protocol: tcp
+                from_port: "@redis_sentinel_port"
+                to_port: "@redis_sentinel_port"
+                cidrs: "@network_cidr_base"
 
 load_balancer:
-  redis-sentinel:
-    provider: aws_network
-    network: "@aws_networks"
-    subnets: "@aws_redis_subnets"
-    groups: "@redis_group"
-    internal: true
-    listeners:
-      tcp:
-        port: "@redis_sentinel_port"
-        target_port: "@redis_sentinel_port"
-        target_protocol: tcp
-        health_check_interval: "@aws_redis_lb_health_check_interval"
-        healthy_threshold: "@aws_redis_lb_healthy_threshold"
-        unhealthy_threshold: "@aws_redis_lb_unhealthy_threshold"
+    redis-sentinel:
+        provider: aws_network
+        network: "@aws_networks"
+        subnets: "@aws_redis_subnets"
+        groups: "@redis_group"
+        internal: true
+        listeners:
+            tcp:
+                port: "@redis_sentinel_port"
+                target_port: "@redis_sentinel_port"
+                target_protocol: tcp
+                health_check_interval: "@aws_redis_lb_health_check_interval"
+                healthy_threshold: "@aws_redis_lb_healthy_threshold"
+                unhealthy_threshold: "@aws_redis_lb_unhealthy_threshold"
 
 server:
-  redis:
-    count: 1
-    provider: ec2_lb
-    network: "@aws_networks"
-    subnet: "@aws_redis_subnets"
-    image: "@aws_ubuntu_image[<network>]"
-    ssh_port: "@ssh_port"
-    user: "@aws_ubuntu_user"
-    machine: "@aws_redis_machine"
-    tenancy: "@aws_redis_tenancy"
-    monitoring: "@aws_redis_monitoring"
-    ebs_optimized: "@aws_redis_ebs_optimized"
-    load_balancer: redis-sentinel
-    load_balancer_listeners:
-      - tcp
-    groups: "@redis_group"
-    volumes:
-      "@redis_data_dir":
-        provider: aws_ebs
-        type: ext4
-        owner: "@redis_user"
-        group: "@redis_group"
-        mode: "0770"
-        location: "@aws_redis_data_device"
-        ebs_type: "@aws_redis_ebs_type"
-        ebs_size: "@aws_redis_ebs_size"
-        ebs_iops: "@aws_redis_ebs_iops"
-        ebs_encrypted: "@aws_redis_ebs_encrypted"
-    firewalls:
-      - internet
-      - "@ssh_firewall"
-      - redis
+    redis:
+        count: 1
+        provider: ec2_lb
+        network: "@aws_networks"
+        subnet: "@aws_redis_subnets"
+        image: "@aws_ubuntu_image[<network>]"
+        ssh_port: "@ssh_port"
+        user: "@aws_ubuntu_user"
+        machine: "@aws_redis_machine"
+        tenancy: "@aws_redis_tenancy"
+        monitoring: "@aws_redis_monitoring"
+        ebs_optimized: "@aws_redis_ebs_optimized"
+        load_balancer: redis-sentinel
+        load_balancer_listeners:
+            - tcp
+        groups: "@redis_group"
+        volumes:
+            "@redis_data_dir":
+                provider: aws_ebs
+                type: ext4
+                owner: "@redis_user"
+                group: "@redis_group"
+                mode: "0770"
+                location: "@aws_redis_data_device"
+                ebs_type: "@aws_redis_ebs_type"
+                ebs_size: "@aws_redis_ebs_size"
+                ebs_iops: "@aws_redis_ebs_iops"
+                ebs_encrypted: "@aws_redis_ebs_encrypted"
+        firewalls:
+            - internet
+            - "@ssh_firewall"
+            - redis
 
 run:
-  redis-credentials:
-    command: server rotate
-    server_search: groups.name=@redis_group
+    redis-credentials:
+        command: server rotate
+        server_search: groups.name=@redis_group
 
-  redis-user-environment:
-    requires: redis-credentials
-    module: cluster
-    task: user-environment
-    servers: groups.name=@redis_group
+    redis-user-environment:
+        requires: redis-credentials
+        module: cluster
+        task: user-environment
+        servers: groups.name=@redis_group
 
-  redis-cluster:
-    requires: redis-credentials
-    task: redis
-    redis_port: "@redis_db_port"
-    redis_sentinel_port: "@redis_sentinel_port"
-    redis_user: "@redis_user"
-    redis_group: "@redis_user"
-    redis_password: "@redis_password"
-    redis_dir: "@redis_data_dir/@redis_db_port"
-    redis_sentinel_dir: "@redis_data_dir/sentinel_@redis_sentinel_port"
-    servers: groups.name=@redis_group
+    redis-cluster:
+        requires: redis-credentials
+        task: redis
+        redis_port: "@redis_db_port"
+        redis_sentinel_port: "@redis_sentinel_port"
+        redis_user: "@redis_user"
+        redis_group: "@redis_user"
+        redis_password: "@redis_password"
+        redis_dir: "@redis_data_dir/@redis_db_port"
+        redis_sentinel_dir: "@redis_data_dir/sentinel_@redis_sentinel_port"
+        servers: groups.name=@redis_group

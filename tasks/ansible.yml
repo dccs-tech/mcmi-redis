@@ -1,12 +1,10 @@
-
 _ansible: &ansible
-  provider: ansible
-  roles: redis-admin
-  directory: ansible
-  servers:
-    - name.startswith=redis
-
+    provider: ansible
+    roles: redis-admin
+    directory: ansible
+    servers:
+        - name.startswith=redis
 
 redis:
-  <<: *ansible
-  playbooks: redis.yml
+    <<: *ansible
+    playbooks: redis.yml

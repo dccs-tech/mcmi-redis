@@ -1,21 +1,21 @@
 parents:
-  - aws/config
+    - aws/config
 
 profile:
-  redis-network:
-    module: cluster
-    profile: aws/network
-    operations: run
+    redis-network:
+        module: cluster
+        profile: aws/network
+        operations: run
 
-  redis-nat:
-    requires: redis-network
-    when_not: "@redis_subnet_public_ip"
-    module: cluster
-    profile: aws/nat
-    operations: run
+    redis-nat:
+        requires: redis-network
+        when_not: "@redis_subnet_public_ip"
+        module: cluster
+        profile: aws/nat
+        operations: run
 
-  redis-cluster:
-    requires:
-      - redis-network
-      - redis-nat
-    profile: aws/cluster
+    redis-cluster:
+        requires:
+            - redis-network
+            - redis-nat
+        profile: aws/cluster

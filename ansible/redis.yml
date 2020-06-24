@@ -1,37 +1,37 @@
 - hosts: redis[0]
   roles:
-    - { role: davidwittman.redis }
+      - { role: davidwittman.redis }
 
 - hosts: "{{ groups['redis'][1::2] }}"
   vars:
-    redis_slaveof: "{{ hostvars[groups['redis'][0]].ansible_host }} {{ redis_port | default(6379) }}"
+      redis_slaveof: "{{ hostvars[groups['redis'][0]].ansible_host }} {{ redis_port | default(6379) }}"
   roles:
-    - { role: davidwittman.redis }
+      - { role: davidwittman.redis }
 
 - hosts: "{{ groups['redis'][2::2] }}"
   vars:
-    redis_slaveof: "{{ hostvars[groups['redis'][0]].ansible_host }} {{ redis_port | default(6379) }}"
+      redis_slaveof: "{{ hostvars[groups['redis'][0]].ansible_host }} {{ redis_port | default(6379) }}"
   roles:
-    - { role: davidwittman.redis }
+      - { role: davidwittman.redis }
 
 - hosts: "{{ groups['redis'][0::2] }}"
   vars:
-    redis_sentinel: true
-    redis_sentinel_monitors:
-      - name: zimagi
-        host: "{{ hostvars[groups['redis'][0]].ansible_host }}"
-        port: "{{ redis_port | default(6379) }}"
-        auth_pass: "{{ redis_password }}"
+      redis_sentinel: true
+      redis_sentinel_monitors:
+          - name: zimagi
+            host: "{{ hostvars[groups['redis'][0]].ansible_host }}"
+            port: "{{ redis_port | default(6379) }}"
+            auth_pass: "{{ redis_password }}"
   roles:
-    - { role: davidwittman.redis }
+      - { role: davidwittman.redis }
 
 - hosts: "{{ groups['redis'][1::2] }}"
   vars:
-    redis_sentinel: true
-    redis_sentinel_monitors:
-      - name: zimagi
-        host: "{{ hostvars[groups['redis'][0]].ansible_host }}"
-        port: "{{ redis_port | default(6379) }}"
-        auth_pass: "{{ redis_password }}"
+      redis_sentinel: true
+      redis_sentinel_monitors:
+          - name: zimagi
+            host: "{{ hostvars[groups['redis'][0]].ansible_host }}"
+            port: "{{ redis_port | default(6379) }}"
+            auth_pass: "{{ redis_password }}"
   roles:
-    - { role: davidwittman.redis }
+      - { role: davidwittman.redis }

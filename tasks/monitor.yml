@@ -1,22 +1,20 @@
-
 _command: &command
-  provider: remote_command
-  roles: redis-admin
-  servers:
-    - name.startswith=redis
-
+    provider: remote_command
+    roles: redis-admin
+    servers:
+        - name.startswith=redis
 
 server:
-  <<: *command
-  command: redis-cli -p @port -a @password @command
-  options:
-    port: 6379
-    password: "$token-redis_password-30"
-    command: "info"
+    <<: *command
+    command: redis-cli -p @port -a @password @command
+    options:
+        port: 6379
+        password: "$token-redis_password-30"
+        command: "info"
 
 sentinel:
-  <<: *command
-  command: redis-cli -p @port @command
-  options:
-    port: 26379
-    command: "info"
+    <<: *command
+    command: redis-cli -p @port @command
+    options:
+        port: 26379
+        command: "info"

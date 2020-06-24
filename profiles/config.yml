@@ -1,16 +1,16 @@
 config:
-  redis_subnet_cidr_prefix: 28
-  redis_subnet_public_ip: false
+    redis_subnet_cidr_prefix: 28
+    redis_subnet_public_ip: false
 
-  redis_user: redis
-  redis_group: redis
+    redis_user: redis
+    redis_group: redis
 
-  redis_db_port: 6379
-  redis_sentinel_port: 26379
+    redis_db_port: 6379
+    redis_sentinel_port: 26379
 
-  redis_password: "%%redis_password:30"
+    redis_password: "%%redis_password:30"
 
-  redis_data_dir: /var/lib/redis
+    redis_data_dir: /var/lib/redis
 
 group:
-  "@redis_group":
+    "@redis_group":

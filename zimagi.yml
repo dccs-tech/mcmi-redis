@@ -1,5 +1,5 @@
 name: redis
 
 modules:
-  - remote: https://github.com/dccs-tech/zimagi-cluster.git
-    reference: master
+    - remote: https://github.com/dccs-tech/zimagi-cluster.git
+      reference: master
