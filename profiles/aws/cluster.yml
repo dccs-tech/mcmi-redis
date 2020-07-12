@@ -53,26 +53,10 @@ firewall:
                 to_port: "@redis_sentinel_port"
                 cidrs: "@network_cidr_base"
 
-load_balancer:
-    redis-sentinel:
-        provider: aws_network
-        network: "@aws_networks"
-        subnets: "@aws_redis_subnets"
-        groups: "@redis_group"
-        internal: true
-        listeners:
-            tcp:
-                port: "@redis_sentinel_port"
-                target_port: "@redis_sentinel_port"
-                target_protocol: tcp
-                health_check_interval: "@aws_redis_lb_health_check_interval"
-                healthy_threshold: "@aws_redis_lb_healthy_threshold"
-                unhealthy_threshold: "@aws_redis_lb_unhealthy_threshold"
-
 server:
     redis:
         count: 1
-        provider: ec2_lb
+        provider: ec2
         network: "@aws_networks"
         subnet: "@aws_redis_subnets"
         image: "@aws_ubuntu_image[<network>]"
@@ -82,9 +66,6 @@ server:
         tenancy: "@aws_redis_tenancy"
         monitoring: "@aws_redis_monitoring"
         ebs_optimized: "@aws_redis_ebs_optimized"
-        load_balancer: redis-sentinel
-        load_balancer_listeners:
-            - tcp
         groups: "@redis_group"
         volumes:
             "@redis_data_dir":
@@ -102,6 +83,23 @@ server:
             - internet
             - "@ssh_firewall"
             - redis
+
+load_balancer:
+    redis-sentinel:
+        provider: aws_network
+        network: "@aws_networks"
+        subnets: "@aws_redis_subnets"
+        groups: "@redis_group"
+        internal: true
+        listeners:
+            tcp:
+                port: "@redis_sentinel_port"
+                target_port: "@redis_sentinel_port"
+                target_protocol: tcp
+                health_check_interval: "@aws_redis_lb_health_check_interval"
+                healthy_threshold: "@aws_redis_lb_healthy_threshold"
+                unhealthy_threshold: "@aws_redis_lb_unhealthy_threshold"
+                server_groups: "@redis_group"
 
 run:
     redis-credentials:
