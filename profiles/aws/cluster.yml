@@ -113,7 +113,7 @@ run:
         servers: groups.name=@redis_group
 
     redis-cluster:
-        requires: redis-credentials
+        requires: redis-user-environment
         task: redis
         redis_port: "@redis_db_port"
         redis_sentinel_port: "@redis_sentinel_port"
