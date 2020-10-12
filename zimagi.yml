@@ -2,4 +2,4 @@ name: redis
 
 modules:
     - remote: https://github.com/dccs-tech/zimagi-cluster-aws.git
-      reference: master
+      reference: main
